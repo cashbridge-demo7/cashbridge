@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CashBridge</title>
+<style>
+:root{--navy:#0A1B3D;--blue:#2F6BFF;--bg:#F4F6FA;--card:#fff;--text:#0A1B3D;--muted:#6B7690;--line:#E1E6F0;--err:#D93A3A;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1226;--card:#121D3A;--text:#EAF0FF;--muted:#9AA8C7;--line:#243256;color-scheme:dark}}
+html,body{height:100%;margin:0}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center}
+#app{width:100%;max-width:440px;height:100%;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;padding:24px;overflow-y:auto}
+.screen.active{display:flex}
+.splash{background:linear-gradient(160deg,var(--navy),#14examples);background:linear-gradient(160deg,#0A1B3D,#1B3E9E);color:#fff;align-items:center;justify-content:center;text-align:center}
+.logo{width:84px;height:84px;border-radius:24px;background:var(--blue);display:grid;place-items:center;margin-bottom:18px;box-shadow:0 10px 30px rgba(47,107,255,.5)}
+.splash h1{margin:0;font-size:32px;letter-spacing:.5px}
+.splash p{margin:6px 0 0;opacity:.75}
+.hero{background:var(--navy);color:#fff;border-radius:24px;padding:28px 22px;margin:12px 0 20px}
+.hero h2{margin:0 0 8px;font-size:26px;line-height:1.2}
+.hero p{margin:0;opacity:.8;line-height:1.5}
+.feat{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.feat .ic{width:40px;height:40px;border-radius:12px;background:rgba(47,107,255,.12);display:grid;place-items:center;font-size:20px;flex:none}
+.feat b{display:block;font-size:15px}.feat span{font-size:13px;color:var(--muted)}
+.btn{border:0;border-radius:999px;padding:16px;font-size:16px;font-weight:600;width:100%;cursor:pointer}
+.primary{background:var(--blue);color:#fff}.ghost{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}
+.spacer{flex:1;min-height:16px}
+.note{font-size:12px;color:var(--muted);text-align:center;line-height:1.5;margin:14px 0 0}
+.back{background:none;border:0;color:var(--text);font-size:15px;padding:0 0 12px;align-self:flex-start;cursor:pointer}
+h2.t{font-size:26px;margin:0 0 6px}.sub{color:var(--muted);margin:0 0 22px}
+label{font-size:13px;font-weight:600;display:block;margin:14px 0 6px}
+.field{display:flex;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+.field:focus-within{border-color:var(--blue)}
+.field span{padding:0 12px;color:var(--muted);border-right:1px solid var(--line)}
+.field input{border:0;outline:0;background:transparent;color:var(--text);font-size:16px;padding:15px 12px;width:100%}
+.err{color:var(--err);font-size:13px;min-height:18px;margin:8px 0}
+.chk{display:flex;gap:10px;font-size:13px;color:var(--muted);align-items:flex-start;margin-top:14px;line-height:1.4}
+.chk input{margin-top:2px;width:18px;height:18px}
+.otp{display:flex;gap:8px;margin:8px 0}.otp input{width:100%;min-width:0;aspect-ratio:1;text-align:center;font-size:22px;font-weight:600;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--text);outline:0}.otp input:focus{border-color:var(--blue)}.otp.bad input{border-color:var(--err)}.demo{background:rgba(47,107,255,.12);border-radius:12px;padding:10px 12px;font-size:13px;margin-top:14px}.linkbtn{background:none;border:0;color:var(--blue);font-weight:600;font-size:14px;cursor:pointer;padding:8px 0}.linkbtn:disabled{color:var(--muted)}
+.nav{position:absolute;left:0;right:0;bottom:0;display:none;background:var(--card);border-top:1px solid var(--line);padding:8px 6px 10px}.nav button{background:none;border:0;color:var(--muted);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;flex:1;padding:4px}.nav button.on{color:var(--blue);font-weight:600}.nav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.tabs{padding-bottom:90px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 8px;text-align:center}.stat b{display:block;font-size:24px}.stat span{font-size:11px;color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}.card p{margin:6px 0 0;font-size:14px;color:var(--muted);line-height:1.5}.badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(47,107,255,.12);color:var(--blue);margin:0 6px 6px 0}.badge.off{background:var(--line);color:var(--muted)}.step{display:flex;gap:10px;font-size:14px;margin-top:10px;align-items:flex-start}.step i{font-style:normal;background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;flex:none}
+.opts{display:grid;gap:10px}.opt{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:14px;cursor:pointer}.opt.on{border-color:var(--blue);background:rgba(47,107,255,.08)}.opt b{display:block;font-size:15px}.opt span{font-size:12px;color:var(--muted)}.range{background:rgba(47,107,255,.1);border-radius:12px;padding:12px;font-size:14px;margin-top:12px}.chips{display:flex;gap:8px}.chip{flex:1;text-align:center;padding:12px 4px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;font-size:14px}.chip.on{border-color:var(--blue);color:var(--blue);font-weight:600}.rq{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.av{width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}.mt{display:flex;gap:12px;align-items:center}.mt>div:nth-child(2){flex:1;min-width:0}.tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:#E3F7EA;color:#17803D;margin-top:6px}.tag.ap{background:#FFF3D6;color:#9A6700}
+.rs{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px;cursor:pointer;font-size:14px}.rs.on{border-color:var(--blue);background:rgba(47,107,255,.08);font-weight:600}details.card summary{font-weight:600;cursor:pointer}.danger{background:transparent;color:var(--err);border:1.5px solid var(--err)}.field textarea{border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:12px;width:100%;min-height:70px;resize:none}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section class="screen splash active" id="splash">
+  <div class="logo"><span style="font-size:48px;font-weight:700;color:#fff;line-height:1">₹</span></div>
+  <h1>CashBridge</h1><p>Connect. Match. Bridge.</p>
+</section>
+
+<section class="screen" id="welcome">
+  <div class="hero"><h2>Find people with opposite cash and digital needs</h2><p>CashBridge helps you discover a match. We never hold, move or guarantee money.</p></div>
+  <div class="feat"><div class="ic">🔁</div><div><b>Smart matching</b><span>Exact amounts first, then within ±10%</span></div></div>
+  <div class="feat"><div class="ic">🤝</div><div><b>Consent first</b><span>No match is shown without your approval</span></div></div>
+  <div class="feat"><div class="ic">🛡️</div><div><b>Report and block</b><span>You stay in control of who you meet</span></div></div>
+  <div class="spacer"></div>
+  <button class="btn primary" onclick="go('login')">Log in</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="go('register')">Create account</button>
+  <p class="note">Adults 18+ only. Prototype uses simulated users and no real money.</p>
+</section>
+
+<section class="screen" id="login">
+  <button class="back" onclick="go('welcome')">← Back</button>
+  <h2 class="t">Welcome back</h2><p class="sub">Log in with your email and password.</p>
+  <label for="lemail">Email</label>
+  <div class="field"><input id="lemail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+  <label for="lpw">Password</label>
+  <div class="field"><input id="lpw" type="password" autocomplete="current-password" placeholder="Your password"></div>
+  <div class="err" id="err"></div>
+  <button class="btn primary" onclick="login()">Log in</button>
+  <p class="note">Never share bank passwords, UPI PINs or card details with anyone. CashBridge will never ask for them.</p>
+</section>
+
+<section class="screen" id="register">
+  <button class="back" onclick="go('welcome')">← Back</button>
+  <h2 class="t">Create account</h2><p class="sub">Takes under a minute. Adults 18+ only.</p>
+  <label for="rname">Full name</label>
+  <div class="field"><input id="rname" type="text" maxlength="40" placeholder="Your name" autocomplete="name"></div>
+  <label for="remail">Email</label>
+  <div class="field"><input id="remail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+  <label for="rpw">Password</label>
+  <div class="field"><input id="rpw" type="password" autocomplete="new-password" placeholder="8+ characters, letters and numbers"></div>
+  <label for="rmob">Mobile number (optional)</label>
+  <div class="field"><span>+91</span><input id="rmob" type="tel" inputmode="numeric" maxlength="10" placeholder="Not verified"></div>
+  <label for="rdob">Date of birth</label>
+  <div class="field"><input id="rdob" type="date"></div>
+  <div class="chk"><input type="checkbox" id="rterms"><label for="rterms" style="margin:0;font-weight:400">I agree to the Terms and Privacy Policy. I understand CashBridge only helps me find matches and never handles money.</label></div>
+  <div class="err" id="rerr"></div>
+  <button class="btn primary" onclick="register()">Create account</button>
+  <p class="note">Other users only see your first name and verification status, never your number.</p>
+</section>
+
+<section class="screen" id="otp">
+  <button class="back" onclick="go('login')">← Back</button>
+  <h2 class="t">Verify your number</h2><p class="sub">Enter the 6-digit code sent to <b id="otpNum"></b></p>
+  <div class="otp" id="otpBoxes"></div>
+  <div class="err" id="otpErr"></div>
+  <button class="btn primary" onclick="verifyOtp()">Verify</button>
+  <div style="text-align:center;margin-top:8px"><button class="linkbtn" id="resend" onclick="resendOtp()" disabled>Resend code</button></div>
+  <div class="demo">Demo mode: no real SMS is sent. Use code <b>123456</b>. Real SMS comes with Firebase later.</div>
+  <p class="note">Never share this code with anyone. CashBridge will never ask for your OTP, UPI PIN or bank details.</p>
+</section>
+
+<section class="screen tabs" id="home">
+  <p class="sub" style="margin:0">Welcome back</p><h2 class="t" id="hName">Hi</h2>
+  <div class="card" style="margin-top:12px"><span class="badge off" id="hBadge">Email not verified</span><span class="badge off">Financial verification: not available</span><p>CashBridge does not verify bank accounts or identity. Always be careful with strangers.</p><button class="linkbtn" id="vBtn" style="display:none" onclick="resendVerify()">Send verification email</button></div>
+  <div class="stats"><div class="stat"><b id="sActive">0</b><span>Active requests</span></div><div class="stat"><b id="sInv">0</b><span>Match invites</span></div><div class="stat"><b id="sPast">0</b><span>Past matches</span></div></div>
+  <div class="card"><b id="hReqT">No active request</b><p id="hReqP">Create a request to see people with the opposite need.</p><button class="btn primary" style="margin-top:12px" onclick="openCreate()">Create request</button></div>
+  <div class="card"><b>How it works</b><div class="step"><i>1</i>Post what you need and the amount</div><div class="step"><i>2</i>We find opposite needs within ±10%</div><div class="step"><i>3</i>Both sides must accept before anything is shown</div></div>
+</section>
+
+<section class="screen" id="create">
+  <button class="back" onclick="tab('home')">← Back</button>
+  <h2 class="t">New request</h2><p class="sub">Tell us what you need. Matching uses a ±10% range.</p>
+  <label>What do you need?</label>
+  <div class="opts">
+    <div class="opt" data-v="c2d" onclick="pickType('c2d')"><b>Cash to Digital</b><span>I have cash and need digital money</span></div>
+    <div class="opt" data-v="d2c" onclick="pickType('d2c')"><b>Digital to Cash</b><span>I have digital money and need cash</span></div>
+    <div class="opt" data-v="both" onclick="pickType('both')"><b>Both</b><span>I’m open to either direction</span></div>
+  </div>
+  <label for="camt">Amount</label>
+  <div class="field"><span>₹</span><input id="camt" type="tel" inputmode="numeric" maxlength="6" placeholder="100 to 50,000" oninput="this.value=this.value.replace(/\D/g,'');updRange()"></div>
+  <div class="range" id="crange"></div>
+  <label>Request expires in</label>
+  <div class="chips"><div class="chip" data-h="6" onclick="pickHrs(6)">6 hours</div><div class="chip" data-h="24" onclick="pickHrs(24)">24 hours</div><div class="chip" data-h="48" onclick="pickHrs(48)">48 hours</div></div>
+  <div class="err" id="cerr"></div>
+  <button class="btn primary" onclick="createReq()">Create request</button>
+  <p class="note">Prototype only: no real money is moved. You can have up to 3 active requests.</p>
+</section>
+
+<section class="screen" id="find">
+  <button class="back" onclick="tab('requests')">← Back</button>
+  <h2 class="t">Find matches</h2><p class="sub" id="fSub"></p>
+  <div id="fList"></div>
+  <p class="note">Only first names are shown. Contact details stay private until both of you accept.</p>
+</section>
+
+<section class="screen tabs" id="requests"><h2 class="t">My requests</h2><div id="reqList"></div><button class="btn primary" onclick="openCreate()">New request</button></section>
+<section class="screen" id="mdetail"><button class="back" onclick="tab('matches')">← Back</button><h2 class="t">Match details</h2><div id="mdBody"></div></section>
+<section class="screen tabs" id="matches"><h2 class="t">Matches</h2><div id="mList"></div><button class="btn ghost" onclick="simIncoming()">Simulate incoming request (demo)</button></section>
+<section class="screen tabs" id="alerts"><h2 class="t">Notifications</h2><div id="nList"></div></section>
+<section class="screen tabs" id="profile"><h2 class="t">Profile</h2>
+  <div class="card"><b id="pName"></b><p id="pMob"></p><div style="margin-top:10px"><span class="badge off" id="pBadge">Email not verified</span><span class="badge off">Financial: not available</span></div></div>
+  <button class="btn primary" onclick="openSettings()">Settings</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="go('help')">Help &amp; support</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="logout()">Log out</button>
+</section>
+
+<section class="screen" id="report"><button class="back" onclick="go('mdetail')">← Back</button><h2 class="t">Report user</h2><p class="sub" id="rpSub"></p><div class="opts" id="rpOpts"></div><label for="rnote">Details (optional)</label><div class="field"><textarea id="rnote" maxlength="200" placeholder="What happened?"></textarea></div><div class="chk"><input type="checkbox" id="rblock" checked><label for="rblock" style="margin:0;font-weight:400">Also block this user</label></div><div class="err" id="rperr"></div><button class="btn primary" onclick="submitReport()">Submit report</button><p class="note">Reports are stored for safety review. A real launch would send them to a moderation team.</p></section>
+
+<section class="screen" id="settings"><button class="back" onclick="tab('profile')">← Back</button><h2 class="t">Settings</h2><div class="card"><b>Blocked users</b><div id="blList"></div></div><div class="card"><b>Delete account</b><p>Removes your profile, requests, matches and notifications from this device.</p><button class="btn danger" style="margin-top:12px" onclick="openDelete()">Delete account</button></div></section>
+
+<section class="screen" id="help"><button class="back" onclick="tab('profile')">← Back</button><h2 class="t">Help &amp; support</h2>
+<details class="card"><summary>Does CashBridge handle my money?</summary><p>No. CashBridge only helps you find people with opposite needs. We never hold, move or guarantee money.</p></details>
+<details class="card"><summary>How does matching work?</summary><p>We pair opposite needs (cash to digital with digital to cash) within ±10% of your amount. Exact amounts come first. Both people must agree.</p></details>
+<details class="card"><summary>What does verification mean?</summary><p>In this prototype accounts are not verified. Real email verification arrives with Firebase. No badge will ever mean identity or finances are verified.</p></details>
+<details class="card"><summary>How do I report or block someone?</summary><p>Open the match from the Matches tab, then tap Report or Block.</p></details>
+<details class="card"><summary>Staying safe</summary><p>Meet only in public places. Never share OTPs, UPI PINs, card details or passwords. Confirm payment has arrived before handing over cash. Do not use CashBridge for anything illegal.</p></details>
+<div class="card"><b>Contact support</b><p>Support contact is not set up in this prototype.</p></div></section>
+
+<section class="screen" id="delete"><button class="back" onclick="go('settings')">← Back</button><h2 class="t">Delete account</h2><p class="sub">This cannot be undone. Type DELETE to confirm.</p><div class="field"><input id="dconf" type="text" placeholder="DELETE" autocapitalize="characters"></div><div class="err" id="derr"></div><button class="btn danger" onclick="deleteAccount()">Delete my account permanently</button><p class="note">Safety reports you filed may be kept for review.</p></section>
+
+<nav class="nav" id="nav">
+  <button data-t="home" onclick="tab('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10H3z"/></svg>Home</button>
+  <button data-t="requests" onclick="tab('requests')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Requests</button>
+  <button data-t="matches" onclick="tab('matches')"><svg viewBox="0 0 24 24"><path d="M7 7h13l-3-3M17 17H4l3 3"/></svg>Matches</button>
+  <button data-t="alerts" onclick="tab('alerts')"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></svg>Alerts</button>
+  <button data-t="profile" onclick="tab('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</button>
+</nav>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+function go(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(n).classList.add('active');$('nav').style.display=['home','requests','matches','alerts','profile'].includes(n)?'flex':'none'}
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+function sendOtp(){
+  const m=$('mob').value.trim();
+  if(!/^[6-9]\d{9}$/.test(m)){$('err').textContent='Enter a valid 10-digit Indian mobile number.';return}
+  if(!$('age').checked){$('err').textContent='You must confirm you are 18 or older.';return}
+  if(!getUsers()[m]){$('err').textContent='No account found for this number. Please create an account.';return}
+  $('err').textContent='';pendingReg=null;startOtp(m)
+}
+const DEMO_CODE='123456';let tries=0,cd=0,tm=null;
+const boxes=[];
+for(let i=0;i<6;i++){const b=document.createElement('input');b.type='tel';b.inputMode='numeric';b.maxLength=1;b.autocomplete='one-time-code';
+ b.addEventListener('input',()=>{b.value=b.value.replace(/\D/g,'');if(b.value&&i<5)boxes[i+1].focus();$('otpBoxes').classList.remove('bad');$('otpErr').textContent=''});
+ b.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!b.value&&i>0)boxes[i-1].focus()});
+ b.addEventListener('paste',e=>{const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6);if(!d)return;e.preventDefault();d.split('').forEach((c,k)=>boxes[k].value=c);boxes[Math.min(d.length,5)].focus()});
+ boxes.push(b);$('otpBoxes').appendChild(b)}
+function startOtp(m){$('otpNum').textContent='+91 '+m;tries=0;clearOtp();go('otp');boxes[0].focus();timer(30)}
+function clearOtp(){boxes.forEach(b=>b.value='');$('otpBoxes').classList.remove('bad');$('otpErr').textContent=''}
+function timer(s){cd=s;clearInterval(tm);const r=$('resend');r.disabled=true;const t=()=>{if(cd<=0){clearInterval(tm);r.disabled=false;r.textContent='Resend code';return}r.textContent='Resend code in '+cd+'s';cd--};t();tm=setInterval(t,1000)}
+function resendOtp(){clearOtp();tries=0;boxes[0].focus();timer(30);toast('New demo code sent: 123456')}
+function verifyOtp(){
+ const code=boxes.map(b=>b.value).join('');
+ if(code.length<6){$('otpErr').textContent='Enter all 6 digits.';return}
+ if(tries>=5){$('otpErr').textContent='Too many attempts. Tap Resend code.';return}
+ if(code===DEMO_CODE){clearInterval(tm);let u=pendingReg;if(u){saveUser(u);pendingReg=null}else{u=getUsers()[$('otpNum').textContent.replace('+91 ','')]}
+  currentUser=u;renderHome();tab('home');return}
+ tries++;$('otpBoxes').classList.add('bad');$('otpErr').textContent='Wrong code. '+(5-tries)+' attempts left.'}
+let pendingReg=null;
+function getUsers(){try{return JSON.parse(localStorage.getItem('cb_users')||'{}')}catch(e){return window.__u||{}}}
+function saveUser(u){const all=getUsers();all[u.mobile]=u;window.__u=all;try{localStorage.setItem('cb_users',JSON.stringify(all))}catch(e){}}
+function register(){
+ const name=$('rname').value.trim(),m=$('rmob').value.trim(),dob=$('rdob').value,e=$('rerr');
+ if(!/^[A-Za-z\u0900-\u097F .'-]{2,40}$/.test(name)){e.textContent='Enter your full name (letters only).';return}
+ if(!/^[6-9]\d{9}$/.test(m)){e.textContent='Enter a valid 10-digit Indian mobile number.';return}
+ if(!dob){e.textContent='Select your date of birth.';return}
+ const d=new Date(dob),n=new Date();let age=n.getFullYear()-d.getFullYear();
+ if(n.getMonth()<d.getMonth()||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))age--;
+ if(isNaN(age)||age<0||age>110){e.textContent='Enter a valid date of birth.';return}
+ if(age<18){e.textContent='You must be 18 or older to use CashBridge.';return}
+ if(!$('rterms').checked){e.textContent='Please accept the Terms and Privacy Policy.';return}
+ if(getUsers()[m]){e.textContent='This number is already registered. Please log in.';return}
+ e.textContent='';pendingReg={name:name,mobile:m,dob:dob,verified:'phone',created:Date.now()};startOtp(m)}
+let currentUser=null;
+function tab(n){go(n);if(n==='home')renderHome();if(n==='matches')renderMatches();if(n==='alerts')renderAlerts();document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===n))}
+function renderHome(){const u=currentUser||{};renderReqs();renderCounts();$('hName').textContent='Hi, '+(u.name||'there').split(' ')[0];$('pName').textContent=u.name||'';$('pMob').textContent=(u.email||'')+(u.phone?' · +91 XXXXXX'+u.phone.slice(-4):'')}
+function logout(){currentUser=null;go('welcome')}
+let cType='c2d',cHrs=24;
+const TL={c2d:'Cash → Digital',d2c:'Digital → Cash',both:'Both directions'};
+const fmt=n=>Number(n).toLocaleString('en-IN');
+function getReqs(){try{return JSON.parse(localStorage.getItem('cb_reqs')||'[]')}catch(e){return window.__r||[]}}
+function saveReqs(a){window.__r=a;try{localStorage.setItem('cb_reqs',JSON.stringify(a))}catch(e){}}
+function myActive(){const m=(currentUser||{}).mobile;return getReqs().filter(r=>r.owner===m&&r.status==='active'&&r.expires>Date.now())}
+function pick(sel,k,v){document.querySelectorAll(sel).forEach(e=>e.classList.toggle('on',e.dataset[k]===String(v)))}
+function pickType(v){cType=v;pick('.opt','v',v)}
+function pickHrs(h){cHrs=h;pick('.chip','h',h)}
+function rangeOf(a){return {min:Math.ceil(a*90/100),max:Math.floor(a*110/100)}}
+function updRange(){const a=parseInt($('camt').value)||0;$('crange').textContent=a?('Matching range (±10%): ₹'+fmt(rangeOf(a).min)+' – ₹'+fmt(rangeOf(a).max)):'Enter an amount to see your ±10% matching range.'}
+function openCreate(){$('camt').value='';$('cerr').textContent='';pickType('c2d');pickHrs(24);updRange();go('create')}
+function createReq(){
+ const a=parseInt($('camt').value),e=$('cerr');
+ if(!a||a<100||a>50000){e.textContent='Enter an amount between ₹100 and ₹50,000.';return}
+ if(myActive().length>=3){e.textContent='You already have 3 active requests. Cancel one first.';return}
+ const r=rangeOf(a);
+ saveReqs(getReqs().concat([{id:Date.now().toString(36),owner:currentUser.mobile,name:currentUser.name,type:cType,amount:a,min:r.min,max:r.max,created:Date.now(),expires:Date.now()+cHrs*3600000,status:'active'}]));
+ toast('Request created');renderReqs();tab('requests')}
+function cancelReq(id){saveReqs(getReqs().map(r=>r.id===id?Object.assign({},r,{status:'cancelled'}):r));renderReqs();toast('Request cancelled')}
+function renderReqs(){
+ const a=myActive(),L=$('reqList');
+ $('sActive').textContent=a.length;
+ $('hReqT').textContent=a.length?('You have '+a.length+' active request'+(a.length>1?'s':'')):'No active request';
+ $('hReqP').textContent=a.length?'Finding matches comes in a later stage.':'Create a request to see people with the opposite need.';
+ L.innerHTML='';
+ if(!a.length){const c=document.createElement('div');c.className='card';const p=document.createElement('p');p.textContent='No active requests yet.';c.appendChild(p);L.appendChild(c);return}
+ a.forEach(r=>{const c=document.createElement('div');c.className='card';c.innerHTML='<div class="rq"><div><b></b><p></p></div><button class="linkbtn">Cancel</button></div><button class="btn primary" style="margin-top:12px">Find matches</button>';
+  c.querySelector('b').textContent=TL[r.type]+' · ₹'+fmt(r.amount);
+  c.querySelector('p').textContent='Range ₹'+fmt(r.min)+' – ₹'+fmt(r.max)+' · '+Math.max(1,Math.ceil((r.expires-Date.now())/3600000))+'h left';
+  c.querySelector('button').onclick=()=>cancelReq(r.id);c.querySelector('.btn').onclick=()=>openFind(r.id);L.appendChild(c)})}
+let curReq=null;
+function SIM(){const e=Date.now()+48*3600000;const d=[['s1','Aarav','d2c',1000],['s2','Priya','c2d',1000],['s3','Rohan','d2c',950],['s4','Meera','c2d',1080],['s5','Kabir','d2c',1200],['s6','Anjali','both',1050],['s7','Vikram','c2d',5000],['s8','Sana','d2c',900]].map(a=>({id:a[0],owner:'sim'+a[0],name:a[1],type:a[2],amount:a[3],expires:e,status:'active',sim:true}));d.push({id:'s9',owner:'sims9',name:'Dev',type:'d2c',amount:1000,expires:Date.now()-1000,status:'active',sim:true},{id:'s10',owner:'sims10',name:'Isha',type:'d2c',amount:1000,expires:e,status:'cancelled',sim:true});return d}
+function compat(a,b){return a==='both'||b==='both'||a!==b}
+function findMatches(r){const now=Date.now();return SIM().concat(getReqs()).filter(x=>x.owner!==r.owner&&!taken(x.id)&&!isBlocked(x.owner)&&x.status==='active'&&x.expires>now&&compat(r.type,x.type)&&x.amount>=r.min&&x.amount<=r.max).map(x=>Object.assign({},x,{diff:Math.abs(x.amount-r.amount)})).sort((a,b)=>a.diff-b.diff)}
+function getM(){try{return JSON.parse(localStorage.getItem('cb_m')||'[]')}catch(e){return window.__m||[]}}
+function saveM(a){window.__m=a;try{localStorage.setItem('cb_m',JSON.stringify(a))}catch(e){}}
+function sent(r,x){return getM().some(m=>m.fromReq===r.id&&m.toReq===x.id)}
+function sendMatch(r,x){if(sent(r,x))return;saveM(getM().concat([{id:Date.now().toString(36),from:r.owner,fromName:r.name,fromReq:r.id,fromAmount:r.amount,fromType:r.type,toOwner:x.owner,toName:x.name,toReq:x.id,toAmount:x.amount,toType:x.type,sim:!!x.sim,status:'pending',created:Date.now()}]));if(!x.sim)addNotif(x.owner,r.name.split(' ')[0]+' sent you a match request');toast('Match request sent');renderFind();setTimeout(()=>{if(processSim())toast('You have a new notification')},3300)}
+function openFind(id){const r=getReqs().find(q=>q.id===id);if(!r)return;curReq=r;renderFind();go('find')}
+function renderFind(){
+ const r=curReq,L=$('fList'),m=findMatches(r);L.innerHTML='';
+ $('fSub').textContent=TL[r.type]+' · ₹'+fmt(r.amount)+' · range ₹'+fmt(r.min)+' – ₹'+fmt(r.max)+' · '+m.length+' found';
+ if(!m.length){const c=document.createElement('div');c.className='card';const p=document.createElement('p');p.textContent='No matches right now. Try again later or adjust your amount.';c.appendChild(p);L.appendChild(c);return}
+ m.forEach(x=>{const c=document.createElement('div');c.className='card';
+  c.innerHTML='<div class="mt"><div class="av"></div><div><b></b><p></p><span class="tag"></span></div><b class="amt"></b></div><button class="btn primary" style="margin-top:12px"></button>';
+  c.querySelector('.av').textContent=x.name.charAt(0).toUpperCase();
+  c.querySelector('b').textContent=x.name.split(' ')[0]+(x.sim?' · Demo user':'');
+  c.querySelector('p').textContent=(x.type==='c2d'?'Has cash, needs digital':x.type==='d2c'?'Has digital, needs cash':'Open to both')+' · Not verified';
+  const t=c.querySelector('.tag');if(x.diff===0){t.textContent='Exact match'}else{t.textContent='Approx · ₹'+fmt(x.diff)+' away';t.classList.add('ap')}
+  c.querySelector('.amt').textContent='₹'+fmt(x.amount);
+  const b=c.querySelector('.btn'),s=sent(r,x);b.textContent=s?'Request sent ✓':'Send match request';b.disabled=s;if(s)b.style.opacity='.6';b.onclick=()=>sendMatch(r,x);L.appendChild(c)})}
+const stTag={pending:'Pending',accepted:'Accepted',declined:'Declined',cancelled:'Cancelled'};
+const amt=v=>v?'₹'+fmt(v):'';
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function me1(){return ((currentUser||{}).name||'Someone').split(' ')[0]}
+function ago(t){const s=(Date.now()-t)/1000;return s<60?'just now':s<3600?Math.floor(s/60)+'m ago':s<86400?Math.floor(s/3600)+'h ago':Math.floor(s/86400)+'d ago'}
+function getN(){try{return JSON.parse(localStorage.getItem('cb_n')||'[]')}catch(e){return window.__n||[]}}
+function saveN(a){window.__n=a;try{localStorage.setItem('cb_n',JSON.stringify(a))}catch(e){}}
+function addNotif(to,text){saveN(getN().concat([{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),to:to,text:text,created:Date.now(),read:false}]))}
+function taken(id){return getM().some(m=>m.status==='accepted'&&(m.toReq===id||m.fromReq===id))}
+function markMatched(m){saveReqs(getReqs().map(q=>(q.id===m.fromReq||q.id===m.toReq)?Object.assign({},q,{status:'matched'}):q))}
+function processSim(){let n=0;const all=getM().map(m=>{if(m.status==='pending'&&String(m.toOwner).indexOf('sim')===0&&Date.now()-m.created>3000){n++;const s=m.toReq==='s3'?'declined':'accepted';addNotif(m.from,(m.toName||'A demo user')+' '+s+' your match request');if(s==='accepted')markMatched(m);return Object.assign({},m,{status:s})}return m});if(n)saveM(all);return n}
+function mineM(){const me=(currentUser||{}).mobile;return getM().filter(m=>m.from===me||m.toOwner===me)}
+function other(m){const inc=m.toOwner===(currentUser||{}).mobile;return inc?{n:m.fromName||'User',a:m.fromAmount,t:m.fromType,sim:m.sim,inc:true,mya:m.toAmount}:{n:m.toName||'Demo user',a:m.toAmount,t:m.toType,sim:m.sim,inc:false,mya:m.fromAmount}}
+function renderCounts(){processSim();const me=(currentUser||{}).mobile;$('sInv').textContent=getM().filter(m=>m.status==='pending'&&m.toOwner===me).length;$('sPast').textContent=getM().filter(m=>m.status==='accepted'&&(m.from===me||m.toOwner===me)).length}
+function row(m){const o=other(m),c=el('div','card'),h=el('div','mt'),mid=el('div');c.style.cursor='pointer';
+ mid.append(el('b',null,o.n.split(' ')[0]+(o.sim?' · Demo user':'')),el('p',null,(o.inc?'Wants to match · ':'You sent · ')+amt(o.a)+' · '+(TL[o.t]||'')),el('span','tag'+(m.status==='accepted'?'':' ap'),stTag[m.status]));
+ h.append(el('div','av',o.n.charAt(0).toUpperCase()),mid);c.append(h);c.onclick=()=>openMD(m.id);return c}
+function renderMatches(){processSim();const L=$('mList'),me=currentUser.mobile,ms=mineM().sort((a,b)=>b.created-a.created);L.innerHTML='';
+ const g=[['Incoming requests',ms.filter(m=>m.status==='pending'&&m.toOwner===me),'None right now.'],['Sent requests',ms.filter(m=>m.status==='pending'&&m.from===me),'None right now.'],['History',ms.filter(m=>m.status!=='pending'),'No past matches yet.']];
+ g.forEach(x=>{L.append(el('label',null,x[0]));if(!x[1].length)L.append(el('p','note',x[2]));else x[1].forEach(m=>L.append(row(m)))})}
+function openMD(id){curM=id;renderMD();go('mdetail')}
+let curM=null;
+function renderMD(){const m=getM().find(x=>x.id===curM),o=other(m),B=$('mdBody');B.innerHTML='';
+ const top=el('div','card'),h=el('div','mt'),mid=el('div');
+ mid.append(el('b',null,o.n.split(' ')[0]+(o.sim?' · Demo user':'')),el('p',null,'Not verified'),el('span','tag'+(m.status==='accepted'?'':' ap'),stTag[m.status]));
+ h.append(el('div','av',o.n.charAt(0).toUpperCase()),mid);top.append(h);
+ const d=el('div','card');d.append(el('p',null,'Their need: '+(TL[o.t]||'')),el('p',null,'Their amount: '+amt(o.a)),el('p',null,'Your amount: '+amt(o.mya)));
+ const msg={pending:o.inc?'They want to match with you. Accept only if you are comfortable.':'Waiting for their response.',accepted:'Mutual consent confirmed. In this prototype no contact details are shared.',declined:'This request was declined.',cancelled:'This request was cancelled.'}[m.status];
+ const s=el('div','card');s.append(el('b',null,'Status'),el('p',null,msg));
+ const sf=el('div','card');sf.append(el('b',null,'Safety tips'),el('p',null,'Meet only in busy public places. Never share OTPs, UPI PINs or passwords. Confirm the payment has arrived before handing over cash. CashBridge never holds or guarantees money.'));
+ B.append(top,d,s);
+ if(m.status==='pending'&&o.inc){const a=el('button','btn primary','Accept'),b=el('button','btn ghost','Decline');b.style.marginTop='10px';a.onclick=()=>respond(m.id,'accepted');b.onclick=()=>respond(m.id,'declined');B.append(a,b)}
+ if(m.status==='pending'&&!o.inc){const b=el('button','btn ghost','Cancel request');b.onclick=()=>cancelM(m.id);B.append(b)}
+ const rb=el('div');rb.style.cssText='display:flex;gap:10px;margin-top:12px';const r1=el('button','btn ghost','Report'),r2=el('button','btn danger','Block');r1.onclick=()=>openReport(oth(m));r2.onclick=()=>{if(!r2.dataset.c){r2.dataset.c=1;r2.textContent='Tap again to confirm';return}blockUser(oth(m))};rb.append(r1,r2);B.append(sf,rb)}
+function respond(id,s){const m=getM().find(x=>x.id===id);saveM(getM().map(x=>x.id===id?Object.assign({},x,{status:s}):x));addNotif(m.from,me1()+' '+s+' your match request');if(s==='accepted')markMatched(m);toast('Request '+s);tab('matches')}
+function cancelM(id){const m=getM().find(x=>x.id===id);saveM(getM().map(x=>x.id===id?Object.assign({},x,{status:'cancelled'}):x));addNotif(m.toOwner,me1()+' cancelled their match request');toast('Request cancelled');tab('matches')}
+function simIncoming(){const a=myActive();if(!a.length){toast('Create an active request first');return}
+ const r=a[0],used=getM().map(m=>m.fromReq),x=findMatches(r).find(c=>c.sim&&used.indexOf(c.id)<0);
+ if(!x){toast('No demo match available for your request');return}
+ saveM(getM().concat([{id:Date.now().toString(36),from:x.owner,fromName:x.name,fromReq:x.id,fromAmount:x.amount,fromType:x.type,toOwner:r.owner,toName:r.name,toReq:r.id,toAmount:r.amount,toType:r.type,sim:true,status:'pending',created:Date.now()}]));
+ addNotif(r.owner,x.name+' sent you a match request');renderMatches();toast('Demo request received')}
+function renderAlerts(){processSim();const me=currentUser.mobile,all=getN(),mine=all.filter(n=>n.to===me).sort((a,b)=>b.created-a.created),L=$('nList');L.innerHTML='';
+ if(!mine.length){const c=el('div','card');c.append(el('p',null,'You have no notifications yet.'));L.append(c)}
+ mine.forEach(n=>{const c=el('div','card');c.append(el(n.read?'p':'b',null,(n.read?'':'● ')+n.text),el('p',null,ago(n.created)));L.append(c)});
+ saveN(all.map(n=>n.to===me?Object.assign({},n,{read:true}):n))}
+let rep=null,rReason='';
+const REASONS=['Suspected fraud or scam','Harassment or abuse','Fake profile','Spam','Other'];
+function oth(m){const inc=m.toOwner===currentUser.mobile;return {owner:inc?m.from:m.toOwner,name:inc?(m.fromName||'User'):(m.toName||'User')}}
+function getB(){try{return JSON.parse(localStorage.getItem('cb_b')||'[]')}catch(e){return window.__b||[]}}
+function saveB(a){window.__b=a;try{localStorage.setItem('cb_b',JSON.stringify(a))}catch(e){}}
+function getRp(){try{return JSON.parse(localStorage.getItem('cb_rp')||'[]')}catch(e){return window.__rp||[]}}
+function saveRp(a){window.__rp=a;try{localStorage.setItem('cb_rp',JSON.stringify(a))}catch(e){}}
+function isBlocked(o){const me=currentUser.mobile;return getB().some(b=>(b.blocker===me&&b.blocked===o)||(b.blocked===me&&b.blocker===o))}
+function blockUser(o,silent){const me=currentUser.mobile;if(!isBlocked(o.owner))saveB(getB().concat([{blocker:me,blocked:o.owner,name:o.name,created:Date.now()}]));
+ saveM(getM().map(m=>m.status==='pending'&&((m.from===me&&m.toOwner===o.owner)||(m.from===o.owner&&m.toOwner===me))?Object.assign({},m,{status:'cancelled'}):m));
+ if(!silent){toast('User blocked');tab('matches')}}
+function openReport(o){rep=o;rReason='';$('rpSub').textContent='Why are you reporting '+o.name.split(' ')[0]+'?';$('rnote').value='';$('rperr').textContent='';$('rblock').checked=true;
+ const L=$('rpOpts');L.innerHTML='';REASONS.forEach(t=>{const d=el('div','rs',t);d.dataset.v=t;d.onclick=()=>{rReason=t;pick('.rs','v',t)};L.append(d)});go('report')}
+function submitReport(){if(!rReason){$('rperr').textContent='Choose a reason.';return}
+ saveRp(getRp().concat([{id:Date.now().toString(36),reporter:currentUser.mobile,reported:rep.owner,name:rep.name,reason:rReason,note:$('rnote').value.trim().slice(0,200),created:Date.now()}]));
+ if($('rblock').checked)blockUser(rep,true);toast('Report submitted. Thank you.');tab('matches')}
+function openSettings(){const me=currentUser.mobile,L=$('blList'),a=getB().filter(b=>b.blocker===me);L.innerHTML='';
+ if(!a.length){L.append(el('p',null,'You have not blocked anyone.'))}
+ a.forEach(b=>{const r=el('div','rq'),u=el('button','linkbtn','Unblock');r.append(el('p',null,b.name),u);u.onclick=()=>{saveB(getB().filter(x=>!(x.blocker===me&&x.blocked===b.blocked)));toast('User unblocked');openSettings()};L.append(r)});go('settings')}
+function openDelete(){$('dconf').value='';$('derr').textContent='';go('delete')}
+function deleteAccount(){if($('dconf').value.trim()!=='DELETE'){$('derr').textContent='Type DELETE exactly to confirm.';return}
+ const me=currentUser.mobile,u=getUsers();delete u[me];window.__u=u;try{localStorage.setItem('cb_users',JSON.stringify(u))}catch(e){}
+ saveReqs(getReqs().filter(r=>r.owner!==me));saveM(getM().filter(m=>m.from!==me&&m.toOwner!==me));saveN(getN().filter(n=>n.to!==me));saveB(getB().filter(b=>b.blocker!==me&&b.blocked!==me));
+ currentUser=null;go('welcome');toast('Account deleted')}
+let lf=0;const EM=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+async function hp(e,p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('cb:'+e+':'+p));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function login(){const e=$('lemail').value.trim().toLowerCase(),p=$('lpw').value,er=$('err');
+ if(lf>=5){er.textContent='Too many attempts. Reload the page to try again.';return}
+ if(!EM.test(e)){er.textContent='Enter a valid email address.';return}
+ if(!p){er.textContent='Enter your password.';return}
+ const u=getUsers()[e];
+ if(!u||u.ph!==await hp(e,p)){lf++;er.textContent='Wrong email or password.';return}
+ lf=0;er.textContent='';$('lpw').value='';currentUser=u;renderHome();tab('home')}
+async function register(){
+ const name=$('rname').value.trim(),e=$('remail').value.trim().toLowerCase(),p=$('rpw').value,m=$('rmob').value.trim(),dob=$('rdob').value,er=$('rerr');
+ if(!/^[A-Za-z\u0900-\u097F .'-]{2,40}$/.test(name)){er.textContent='Enter your full name (letters only).';return}
+ if(!EM.test(e)){er.textContent='Enter a valid email address.';return}
+ if(!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(p)){er.textContent='Password needs 8+ characters with letters and numbers.';return}
+ if(m&&!/^[6-9]\d{9}$/.test(m)){er.textContent='Mobile number must be 10 digits, or leave it empty.';return}
+ if(!dob){er.textContent='Select your date of birth.';return}
+ const d=new Date(dob),n=new Date();let age=n.getFullYear()-d.getFullYear();
+ if(n.getMonth()<d.getMonth()||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))age--;
+ if(isNaN(age)||age<0||age>110){er.textContent='Enter a valid date of birth.';return}
+ if(age<18){er.textContent='You must be 18 or older to use CashBridge.';return}
+ if(!$('rterms').checked){er.textContent='Please accept the Terms and Privacy Policy.';return}
+ if(getUsers()[e]){er.textContent='This email is already registered. Please log in.';return}
+ er.textContent='';
+ const u={name:name,email:e,mobile:e,phone:m,dob:dob,ph:await hp(e,p),created:Date.now()}; // mobile = internal account id (email) until Firebase UIDs
+ saveUser(u);currentUser=u;$('rpw').value='';renderHome();tab('home');toast('Account created')}
+setTimeout(()=>{if(!currentUser)go('welcome')},1800);
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendEmailVerification,deleteUser} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,setDoc,getDoc,deleteDoc,updateDoc,collection,query,where,onSnapshot,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyAzAKRoo79M2Z5G6lq7iZO4UeaITAtNdcA",authDomain:"cashbridge-demo.firebaseapp.com",projectId:"cashbridge-demo",appId:"1:886686737941:web:094869529a9515af46501c"});
+const auth=getAuth(app),db=getFirestore(app);let busy=false;
+const ERR={'auth/email-already-in-use':'This email is already registered. Please log in.','auth/invalid-credential':'Wrong email or password.','auth/invalid-email':'Enter a valid email address.','auth/weak-password':'Password is too weak.','auth/too-many-requests':'Too many attempts. Try again later.','auth/network-request-failed':'No internet connection.'};
+const msg=c=>ERR[c]||'Something went wrong. Please try again.';
+async function load(u){let d={};try{const s=await getDoc(doc(db,'users',u.uid));if(s.exists())d=s.data()}catch(e){}
+ currentUser={name:d.name||'there',email:u.email,phone:d.phone||'',dob:d.dob||'',mobile:u.uid,uid:u.uid,emailVerified:u.emailVerified};startSync(u.uid)}
+function badges(){const v=currentUser&&currentUser.emailVerified;['hBadge','pBadge'].forEach(i=>{const b=$(i);if(b){b.textContent=v?'\u2713 Email verified':'Email not verified';b.className='badge'+(v?'':' off')}});const x=$('vBtn');if(x)x.style.display=v?'none':'inline-block'}
+const _rh=window.renderHome;
+window.renderHome=function(){_rh();badges();if(auth.currentUser)auth.currentUser.reload().then(()=>{if(currentUser){currentUser.emailVerified=auth.currentUser.emailVerified;badges()}}).catch(()=>{})};
+window.login=async()=>{const e=$('lemail').value.trim().toLowerCase(),p=$('lpw').value,er=$('err');
+ if(!EM.test(e)){er.textContent='Enter a valid email address.';return}
+ if(!p){er.textContent='Enter your password.';return}
+ busy=true;try{const c=await signInWithEmailAndPassword(auth,e,p);await load(c.user);er.textContent='';$('lpw').value='';renderHome();tab('home')}catch(x){er.textContent=msg(x.code)}busy=false};
+window.register=async()=>{const name=$('rname').value.trim(),e=$('remail').value.trim().toLowerCase(),p=$('rpw').value,m=$('rmob').value.trim(),dob=$('rdob').value,er=$('rerr');
+ if(!/^[A-Za-z\u0900-\u097F .'-]{2,40}$/.test(name)){er.textContent='Enter your full name (letters only).';return}
+ if(!EM.test(e)){er.textContent='Enter a valid email address.';return}
+ if(!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(p)){er.textContent='Password needs 8+ characters with letters and numbers.';return}
+ if(m&&!/^[6-9]\d{9}$/.test(m)){er.textContent='Mobile number must be 10 digits, or leave it empty.';return}
+ if(!dob){er.textContent='Select your date of birth.';return}
+ const d=new Date(dob),n=new Date();let age=n.getFullYear()-d.getFullYear();
+ if(n.getMonth()<d.getMonth()||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))age--;
+ if(isNaN(age)||age<0||age>110){er.textContent='Enter a valid date of birth.';return}
+ if(age<18){er.textContent='You must be 18 or older to use CashBridge.';return}
+ if(!$('rterms').checked){er.textContent='Please accept the Terms and Privacy Policy.';return}
+ er.textContent='';busy=true;
+ try{const c=await createUserWithEmailAndPassword(auth,e,p);
+  await setDoc(doc(db,'users',c.user.uid),{name:name,email:e,phone:m,dob:dob,createdAt:Date.now()});
+  try{await sendEmailVerification(c.user)}catch(_){}
+  await load(c.user);$('rpw').value='';renderHome();tab('home');toast('Account created. Check your email to verify.')}
+ catch(x){er.textContent=msg(x.code)}busy=false};
+window.resendVerify=async()=>{try{await sendEmailVerification(auth.currentUser);toast('Verification email sent')}catch(x){toast(msg(x.code))}};
+window.logout=async()=>{try{await signOut(auth)}catch(e){}stopSync();currentUser=null;go('welcome')};
+const _del=window.deleteAccount;
+window.deleteAccount=async()=>{if($('dconf').value.trim()!=='DELETE'){_del();return}
+ try{await cleanup();await deleteDoc(doc(db,'users',auth.currentUser.uid));await deleteUser(auth.currentUser)}catch(x){$('derr').textContent='For security, log out, log in again, then delete.';return}
+ _del()};
+const C={reqs:[],m:[],n:[],b:[],rp:[]};let unsubs=[],Mf=[],Mt=[],ready=false;
+const f1=s=>String(s||'').split(' ')[0];
+const reqD=x=>({ownerUid:x.owner,name:f1(x.name),type:x.type,amount:x.amount,min:x.min,max:x.max,created:x.created,expires:x.expires,status:x.status});
+const mD=x=>({fromUid:x.from,fromName:f1(x.fromName),fromReq:x.fromReq,fromAmount:x.fromAmount,fromType:x.fromType,toUid:x.toOwner,toName:f1(x.toName),toReq:x.toReq,toAmount:x.toAmount,toType:x.toType,status:x.status,created:x.created});
+const nD=x=>({toUid:x.to,fromUid:currentUser.uid,text:x.text,created:x.created,read:!!x.read});
+const bD=x=>({blockerUid:x.blocker,blockedUid:x.blocked,name:x.name||'',created:x.created});
+const rD=x=>({reporterUid:x.reporter,reportedUid:x.reported,name:x.name||'',reason:x.reason,note:x.note||'',created:x.created});
+const f=x=>Object.assign({id:x.id},x.data());
+const mapR=d=>({id:d.id,owner:d.ownerUid,name:d.name,type:d.type,amount:d.amount,min:d.min,max:d.max,created:d.created,expires:d.expires,status:d.status});
+const mapM=d=>({id:d.id,from:d.fromUid,fromName:d.fromName,fromReq:d.fromReq,fromAmount:d.fromAmount,fromType:d.fromType,toOwner:d.toUid,toName:d.toName,toReq:d.toReq,toAmount:d.toAmount,toType:d.toType,status:d.status,created:d.created});
+const mapN=d=>({id:d.id,to:d.toUid,text:d.text,created:d.created,read:d.read});
+const mapB=d=>({id:d.id,blocker:d.blockerUid,blocked:d.blockedUid,name:d.name,created:d.created});
+function diffSave(col,key,arr,toD){const old=C[key];
+ arr.forEach(x=>{const o=old.find(y=>y.id===x.id),d=toD(x);
+  if(!o){setDoc(doc(db,col,x.id),d).catch(()=>{})}
+  else{const od=toD(o),ch={};Object.keys(d).forEach(k=>{if(JSON.stringify(d[k])!==JSON.stringify(od[k]))ch[k]=d[k]});if(Object.keys(ch).length)updateDoc(doc(db,col,x.id),ch).catch(()=>{})}});
+ old.forEach(o=>{if(!arr.find(y=>y.id===o.id))deleteDoc(doc(db,col,o.id)).catch(()=>{})});
+ C[key]=arr}
+window.getReqs=()=>C.reqs;window.saveReqs=a=>diffSave('requests','reqs',a,reqD);
+window.getM=()=>C.m;window.saveM=a=>diffSave('matches','m',a,mD);
+window.getN=()=>C.n;window.saveN=a=>diffSave('notifications','n',a,nD);
+window.getB=()=>C.b;window.saveB=a=>diffSave('blocks','b',a.map(b=>b.id?b:Object.assign({id:b.blocker+'_'+b.blocked},b)),bD);
+window.getRp=()=>C.rp;window.saveRp=a=>diffSave('reports','rp',a,rD);
+window.SIM=()=>[];
+window.mineM=()=>{const me=currentUser.mobile,bl=C.b.map(b=>b.blocked);return C.m.filter(m=>(m.from===me||m.toOwner===me)&&!(m.toOwner===me&&bl.indexOf(m.from)>=0))};
+function ui(){const a=document.querySelector('.screen.active');if(!a||!currentUser)return;const id=a.id;
+ try{if(id==='home'){renderReqs();renderCounts()}else if(id==='requests')renderReqs();else if(id==='find'&&curReq)renderFind();else if(id==='matches')renderMatches();else if(id==='mdetail'&&C.m.find(x=>x.id===curM))renderMD();else if(id==='alerts')renderAlerts()}catch(e){}}
+function mm(){C.m=Mf.concat(Mt);C.m.forEach(m=>{const mine=m.from===currentUser.uid?m.fromReq:m.toReq,r=C.reqs.find(q=>q.id===mine&&q.owner===currentUser.uid);if(m.status==='accepted'&&r)updateDoc(doc(db,'requests',mine),{status:'matched'}).catch(()=>{})});ui()}
+function stopSync(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];Mf=[];Mt=[];ready=false;C.reqs=[];C.m=[];C.n=[];C.b=[]}
+function startSync(uid){stopSync();const E=()=>{};
+ unsubs=[
+  onSnapshot(query(collection(db,'requests'),where('status','==','active')),s=>{C.reqs=s.docs.map(x=>mapR(f(x)));ui()},E),
+  onSnapshot(query(collection(db,'matches'),where('fromUid','==',uid)),s=>{Mf=s.docs.map(x=>mapM(f(x)));mm()},E),
+  onSnapshot(query(collection(db,'matches'),where('toUid','==',uid)),s=>{Mt=s.docs.map(x=>mapM(f(x)));mm()},E),
+  onSnapshot(query(collection(db,'notifications'),where('toUid','==',uid)),s=>{C.n=s.docs.map(x=>mapN(f(x)));if(ready)s.docChanges().forEach(c=>{if(c.type==='added'&&!c.doc.data().read)toast('New notification')});ready=true;ui()},E),
+  onSnapshot(query(collection(db,'blocks'),where('blockerUid','==',uid)),s=>{C.b=s.docs.map(x=>mapB(f(x)));ui()},E)];
+ const b=document.querySelector('[onclick="simIncoming()"]');if(b)b.style.display='none'}
+async function cleanup(){const u=auth.currentUser.uid,s=await getDocs(query(collection(db,'requests'),where('ownerUid','==',u)));await Promise.all(s.docs.map(x=>deleteDoc(x.ref)).concat(C.b.map(b=>deleteDoc(doc(db,'blocks',b.id)))))}
+onAuthStateChanged(auth,async u=>{if(busy)return;if(u){await load(u);renderHome();const a=document.querySelector('.screen.active');if(!a||['splash','welcome','login','register'].includes(a.id))tab('home')}else{stopSync();currentUser=null}});
+</script>
+</body>
+</html>
